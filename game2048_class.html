@@ -68,7 +68,7 @@ class BoardClass{
         ctx.fillRect(this.cellSize+x*this.cellSize+this.cellSize*0.1,this.cellSize+y*this.cellSize+this.cellSize*0.1,this.cellSize*0.8,this.cellSize*0.8);
         ctx.fillStyle = 'blue';
         ctx.font = "20px sans-serif";
-        if (map[y][x] != 0){
+        if (this.map[y][x] != 0){
             ctx.fillText(this.map[y][x],this.cellSize*1.4+x*this.cellSize,this.cellSize*1.6+y*this.cellSize);
         }
     }
@@ -103,8 +103,8 @@ class BoardClass{
     }
 
     //сдвигаем все ячейки влево/вправо/вниз/вверх
-    shiftAll(code){
-        switch (code){
+    shiftAll(){
+        switch (currentGame.code){
             //Right
             case 39:
             for (var p=0;p<=3;p++){
@@ -161,8 +161,8 @@ class BoardClass{
     }
 
     //складываем одинаковые ячейки
-    pressButtonDouble(code){
-        switch (code) {
+    pressButtonDouble(){
+        switch (currentGame.code) {
             //RightArrow
             case 39:
                 for (var i=0; i<4; i++){
@@ -230,8 +230,8 @@ class GameClass {
 
     //запуск новой игры
     startNewGame(){
-        if (this.code == 32 && this.gameStatus==0){
-            this.gameStatus = 1;
+        if (currentGame.code == 32 && currentGame.gameStatus==0){
+            currentGame.gameStatus = 1;
             gameBoard.score = 0;
             gameBoard.map = [
             [0, 0, 0, 0],
@@ -243,7 +243,8 @@ class GameClass {
     }
 
     //проверка на геймовер
-    checkGameOver(code){
+    checkGameOver(){
+        //document.write('Check Game over');
         var total = 0;
         for (var i=0; i<4; i++){
             for (var j=0; j<4; j++){
@@ -252,22 +253,23 @@ class GameClass {
         }
 
         if (total == 16) { 
+            //document.write('Game over');
             ctx.fillStyle = 'grey';
-            ctx.fillRect(0, 0, 6*this.cellSize, 6*this.cellSize);
+            ctx.fillRect(0, 0, 6*gameBoard.cellSize, 6*gameBoard.cellSize);
             gameBoard.drawScore();
             // Заливаем градиентом
             
-            var gradient=ctx.createLinearGradient(0,0,6*this.cellSize,0);
+            var gradient=ctx.createLinearGradient(0,0,6*gameBoard.cellSize,0);
             gradient.addColorStop("0","magenta");
             gradient.addColorStop("0.5","blue");
             gradient.addColorStop("1.0","red");
             ctx.fillStyle=gradient;
             ctx.font = "38px sans-serif";
-            ctx.fillText('Game Over',this.cellSize, 3*this.cellSize);
+            ctx.fillText('Game Over',gameBoard.cellSize, 3*gameBoard.cellSize);
             ctx.font = "20px sans-serif";
-            ctx.fillText('Нажми пробел для новой игры', 0.5*this.cellSize, 4*this.cellSize);
-            this.gameStatus = 0;
-            ctx.fillStyle = 'black';
+            ctx.fillText('Нажми пробел для новой игры', 0.5*gameBoard.cellSize, 4*gameBoard.cellSize);
+            currentGame.gameStatus = 0;
+            ctx.fillStyle = 'black'; 
         }
     }
 }
@@ -291,15 +293,15 @@ function check(e) {
     currentGame.code = e.keyCode;
     if (currentGame.code >= 32 && currentGame.code <= 40){
         if (currentGame.gameStatus==1) {
+            currentGame.checkGameOver();
 			gameBoard.genNewCells();
             gameBoard.shiftAll();
             gameBoard.pressButtonDouble();
             gameBoard.drawField();
             gameBoard.drawScore(); 
-            gameBoard.checkGameOver();
         }
         else {
-            gameBoard.startNewGame();}
+            currentGame.startNewGame();}
     }
 }
 
